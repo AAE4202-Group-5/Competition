@@ -4,58 +4,58 @@ from mpl_toolkits.mplot3d import Axes3D
 import csv
 import heapq
 
-# Ô²ÅÌ²ÎÊı
+# åœ†ç›˜å‚æ•°
 rings = {
     'ring1': {'center': np.array([2.5, 1.4, 1.15]), 'radius': 0.4, 'normal': np.array([0, -1, 0])},
-    'ring2': {'center': np.array([1.3, -0.5, 1.55]), 'radius': 0.4, 'normal': np.array([-1, 0, 0])}
+    'ring2': {'center': np.array([1.3, -0.5, 1.55]), 'radius': 0.4, 'normal': np.array([-1, 0, 0])},
 }
 
-# ÆğµãºÍÖÕµã
-start_point = np.array([0.0, 0.0, 1.0])
-end_point = np.array([0.0, 0.0, 1.0])
-safety_margin = 0.2  # µ÷Õû°²È«¾àÀë
+# èµ·ç‚¹å’Œç»ˆç‚¹
+start_point = np.array([0.0, 0.0, 0.5])
+end_point = np.array([0.0, 0.0, 0.5])
+safety_margin = 0.25  # è°ƒæ•´å®‰å…¨è·ç¦»
 
-# RRT ²ÎÊı
-max_iter = 3000  # ×î´óµü´ú´ÎÊı
-step_size = 0.1  # Ã¿´ÎÑÓÉìµÄ²½³¤
+# RRT å‚æ•°
+max_iter = 3000  # æœ€å¤§è¿­ä»£æ¬¡æ•°
+step_size = 0.1  # æ¯æ¬¡å»¶ä¼¸çš„æ­¥é•¿
 
 def is_in_obstacle(point, rings, safety_margin):
 
-    point = np.array(point)  # ×ªÎª NumPy Êı×éÒÔ·½±ã¼ÆËã
+    point = np.array(point)  # è½¬ä¸º NumPy æ•°ç»„ä»¥æ–¹ä¾¿è®¡ç®—
 
     for ring_name, ring in rings.items():
-        # »ñÈ¡Ô²»·µÄ²ÎÊı
-        center = ring['center']  # Ô²»·ÖĞĞÄ
-        radius = ring['radius']  # Ô²»·°ë¾¶
-        normal = ring['normal']  # Ô²»··¨ÏòÁ¿
+        # è·å–åœ†ç¯çš„å‚æ•°
+        center = ring['center']  # åœ†ç¯ä¸­å¿ƒ
+        radius = ring['radius']  # åœ†ç¯åŠå¾„
+        normal = ring['normal']  # åœ†ç¯æ³•å‘é‡
 
-        # ¼ÆËãµãµ½Ô²»·Æ½ÃæµÄ¾àÀë
-        normal = normal / np.linalg.norm(normal)  # ¹æ·¶»¯·¨ÏòÁ¿
+        # è®¡ç®—ç‚¹åˆ°åœ†ç¯å¹³é¢çš„è·ç¦»
+        normal = normal / np.linalg.norm(normal)  # è§„èŒƒåŒ–æ³•å‘é‡
         vector_to_point = point - center
         distance_to_plane = np.dot(vector_to_point, normal)
 
-        # Èç¹ûµãµ½Æ½ÃæµÄ¾àÀë³¬¹ıÀ©Õ¹ºñ¶È£¬Ôò²»ÔÚÕÏ°­ÇøÓòÄÚ
+        # å¦‚æœç‚¹åˆ°å¹³é¢çš„è·ç¦»è¶…è¿‡æ‰©å±•åšåº¦ï¼Œåˆ™ä¸åœ¨éšœç¢åŒºåŸŸå†…
         if abs(distance_to_plane) > safety_margin:
             continue
 
-        # ½«µãÍ¶Ó°µ½Ô²»·Æ½Ãæ
+        # å°†ç‚¹æŠ•å½±åˆ°åœ†ç¯å¹³é¢
         projected_point = point - distance_to_plane * normal
 
-        # ¼ÆËãÍ¶Ó°µãµ½Ô²ĞÄµÄ¾àÀë
+        # è®¡ç®—æŠ•å½±ç‚¹åˆ°åœ†å¿ƒçš„è·ç¦»
         distance_to_center = np.linalg.norm(projected_point - center)
 
-        # Èç¹ûÍ¶Ó°µãÔÚÔ²»·À©Õ¹°ë¾¶·¶Î§ÄÚ£¬ÔòµãÔÚÕÏ°­ÇøÓò
+        # å¦‚æœæŠ•å½±ç‚¹åœ¨åœ†ç¯æ‰©å±•åŠå¾„èŒƒå›´å†…ï¼Œåˆ™ç‚¹åœ¨éšœç¢åŒºåŸŸ
         if distance_to_center <= radius + safety_margin:
             return True
 
-    # Èç¹ûµã²»ÔÚÈÎºÎÕÏ°­ÎïÄÚ
+    # å¦‚æœç‚¹ä¸åœ¨ä»»ä½•éšœç¢ç‰©å†…
     return False
 
-# ¼ÆËãÁ½µãÖ®¼äµÄÅ·¼¸ÀïµÃ¾àÀë
+# è®¡ç®—ä¸¤ç‚¹ä¹‹é—´çš„æ¬§å‡ é‡Œå¾—è·ç¦»
 def distance(p1, p2):
     return np.linalg.norm(p1 - p2)
 
-# RRT ½ÚµãÀà
+# RRT èŠ‚ç‚¹ç±»
 class Node:
     def __init__(self, position):
         self.position = position
@@ -81,26 +81,26 @@ def a_star(start, goal, rings, safety_margin, step_size):
                 return False
         return True
 
-    # ³õÊ¼»¯¿ª·ÅÁĞ±íºÍ¹Ø±ÕÁĞ±í
+    # åˆå§‹åŒ–å¼€æ”¾åˆ—è¡¨å’Œå…³é—­åˆ—è¡¨
     open_set = []
     closed_set = set()
-    came_from = {}  # ¼ÇÂ¼Ã¿¸ö½ÚµãµÄ¸¸½Úµã
+    came_from = {}  # è®°å½•æ¯ä¸ªèŠ‚ç‚¹çš„çˆ¶èŠ‚ç‚¹
 
-    # ½Úµã´ú¼Û£ºg(Êµ¼Ê´ú¼Û)ºÍf(×Ü´ú¼Û)
-    g_score = {tuple(start): 0}  # ÆğµãµÄÊµ¼Ê´ú¼ÛÎª0
-    f_score = {tuple(start): heuristic(start, goal)}  # ÆğµãµÄ×Ü´ú¼ÛÎªÆô·¢Öµ
+    # èŠ‚ç‚¹ä»£ä»·ï¼šg(å®é™…ä»£ä»·)å’Œf(æ€»ä»£ä»·)
+    g_score = {tuple(start): 0}  # èµ·ç‚¹çš„å®é™…ä»£ä»·ä¸º0
+    f_score = {tuple(start): heuristic(start, goal)}  # èµ·ç‚¹çš„æ€»ä»£ä»·ä¸ºå¯å‘å€¼
 
-    # ½«Æğµã¼ÓÈë¿ª·ÅÁĞ±í
+    # å°†èµ·ç‚¹åŠ å…¥å¼€æ”¾åˆ—è¡¨
     heapq.heappush(open_set, (f_score[tuple(start)], tuple(start)))
 
-    # ±£´æ½Úµã×ø±ê
+    # ä¿å­˜èŠ‚ç‚¹åæ ‡
     node_positions = [start]
 
     while open_set:
-        # ´Ó¿ª·ÅÁĞ±íÖĞÈ¡³ö f Öµ×îµÍµÄ½Úµã
+        # ä»å¼€æ”¾åˆ—è¡¨ä¸­å–å‡º f å€¼æœ€ä½çš„èŠ‚ç‚¹
         _, current = heapq.heappop(open_set)
 
-        # Èç¹û¿ÉÒÔÖ±½ÓÁ¬Ïßµ½Ä¿±êµã£¬½áÊøËÑË÷
+        # å¦‚æœå¯ä»¥ç›´æ¥è¿çº¿åˆ°ç›®æ ‡ç‚¹ï¼Œç»“æŸæœç´¢
         if can_connect_directly(current, goal, rings, safety_margin):
             path = []
             while current in came_from:
@@ -108,15 +108,15 @@ def a_star(start, goal, rings, safety_margin, step_size):
                 current = came_from[current]
             path.append(start)
             path.reverse()
-            path.append(goal)  # Ö±½ÓÁ¬Ïßµ½Ä¿±êµã
+            path.append(goal)  # ç›´æ¥è¿çº¿åˆ°ç›®æ ‡ç‚¹
             node_positions.append(goal)
             print(f"Found a path to the goal with direct connection: {goal}")
             return path, node_positions
 
-        # ½«µ±Ç°½Úµã¼ÓÈë¹Ø±ÕÁĞ±í
+        # å°†å½“å‰èŠ‚ç‚¹åŠ å…¥å…³é—­åˆ—è¡¨
         closed_set.add(current)
 
-        # À©Õ¹µ±Ç°½ÚµãµÄÁÚ¾Ó
+        # æ‰©å±•å½“å‰èŠ‚ç‚¹çš„é‚»å±…
         for dx in np.linspace(-step_size, step_size, 3):
             for dy in np.linspace(-step_size, step_size, 3):
                 for dz in np.linspace(-step_size, step_size, 3):
@@ -124,14 +124,14 @@ def a_star(start, goal, rings, safety_margin, step_size):
                         continue
                     neighbor = (current[0] + dx, current[1] + dy, current[2] + dz)
 
-                    # Ìø¹ıÎŞĞ§µã£¨ÕÏ°­Îï»òÒÑ·ÃÎÊ£©
+                    # è·³è¿‡æ— æ•ˆç‚¹ï¼ˆéšœç¢ç‰©æˆ–å·²è®¿é—®ï¼‰
                     if not is_valid_point(neighbor, rings, safety_margin) or tuple(neighbor) in closed_set:
                         continue
 
-                    # ¼ÆËãÁÚ¾ÓµÄ g Öµ
+                    # è®¡ç®—é‚»å±…çš„ g å€¼
                     tentative_g_score = g_score[current] + np.linalg.norm(np.array(neighbor) - np.array(current))
 
-                    # Èç¹û·¢ÏÖ¸ü¶ÌÂ·¾¶£¬¸üĞÂ´ú¼ÛºÍÂ·¾¶
+                    # å¦‚æœå‘ç°æ›´çŸ­è·¯å¾„ï¼Œæ›´æ–°ä»£ä»·å’Œè·¯å¾„
                     if tuple(neighbor) not in g_score or tentative_g_score < g_score[tuple(neighbor)]:
                         came_from[tuple(neighbor)] = current
                         g_score[tuple(neighbor)] = tentative_g_score
@@ -139,35 +139,35 @@ def a_star(start, goal, rings, safety_margin, step_size):
                         heapq.heappush(open_set, (f_score[tuple(neighbor)], tuple(neighbor)))
                         node_positions.append(list(neighbor))
 
-    # Èç¹ûÎ´ÕÒµ½Â·¾¶
+    # å¦‚æœæœªæ‰¾åˆ°è·¯å¾„
     print(f"Failed to find a path to the goal: {goal}")
     return [], node_positions
 
-# Éú³ÉÔ²ÅÌµÄÈë¿ÚºÍ³ö¿Úµã
+# ç”Ÿæˆåœ†ç›˜çš„å…¥å£å’Œå‡ºå£ç‚¹
 def generate_ring_entry_exit(ring, margin):
     center = ring['center']
     normal = ring['normal']
 
-    # Èë¿Úµã£ºÑØ·¨ÏòÁ¿·´·½ÏòÆ½ÒÆ margin
+    # å…¥å£ç‚¹ï¼šæ²¿æ³•å‘é‡åæ–¹å‘å¹³ç§» margin
     entry_point = center - normal * (margin + 0.05)
 
-    # ³ö¿Úµã£ºÑØ·¨ÏòÁ¿Õı·½ÏòÆ½ÒÆ margin
+    # å‡ºå£ç‚¹ï¼šæ²¿æ³•å‘é‡æ­£æ–¹å‘å¹³ç§» margin
     exit_point = center + normal * (margin + 0.05)
 
     print(f"Generated entry point: {entry_point}, exit point: {exit_point}")
     return entry_point, exit_point
 
-# »æÖÆÔ²ÅÌ
+# ç»˜åˆ¶åœ†ç›˜
 def plot_rings(ax, rings):
     for ring_name, ring in rings.items():
         center = ring['center']
         radius = ring['radius']
 
-        # »æÖÆÔ²ÅÌ
+        # ç»˜åˆ¶åœ†ç›˜
         theta = np.linspace(0, 2 * np.pi, 100)
         circle = np.array([np.cos(theta) * radius, np.sin(theta) * radius, np.zeros_like(theta)])
 
-        # Ğı×ªµ½Ô²ÅÌµÄ·¨ÏòÁ¿·½Ïò
+        # æ—‹è½¬åˆ°åœ†ç›˜çš„æ³•å‘é‡æ–¹å‘
         z_axis = np.array([0, 0, 1])
         normal = ring['normal']
         rotation_axis = np.cross(z_axis, normal)
@@ -189,153 +189,205 @@ def plot_rings(ax, rings):
 
 def extract_key_nodes(full_path, entry_exit_points, angle_threshold=np.pi / 6):
 
-    key_nodes = [full_path[0]]  # Æğµã×÷ÎªµÚÒ»¸ö¹Ø¼ü½Úµã
+    key_nodes = [full_path[0]]  # èµ·ç‚¹ä½œä¸ºç¬¬ä¸€ä¸ªå…³é”®èŠ‚ç‚¹
 
-    # ±éÀúÂ·¾¶£¬¼ì²â·½Ïò±ä»¯
+    # éå†è·¯å¾„ï¼Œæ£€æµ‹æ–¹å‘å˜åŒ–
     for i in range(1, len(full_path) - 1):
-        # µ±Ç°µãµÄÇ°ºó·½ÏòÏòÁ¿
+        # å½“å‰ç‚¹çš„å‰åæ–¹å‘å‘é‡
         v1 = np.array(full_path[i]) - np.array(full_path[i - 1])
         v2 = np.array(full_path[i + 1]) - np.array(full_path[i])
+
+        if(any(np.allclose(full_path[i], point) for point in entry_exit_points)):
+            key_nodes.append(full_path[i])
+            continue
         
-        # ¼ÆËãÇ°ºó·½ÏòÏòÁ¿µÄ¼Ğ½Ç
+        # è®¡ç®—å‰åæ–¹å‘å‘é‡çš„å¤¹è§’
         cos_theta = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
-        theta = np.arccos(np.clip(cos_theta, -1.0, 1.0))  # ·ÀÖ¹¸¡µãÎó²î
+        theta = np.arccos(np.clip(cos_theta, -1.0, 1.0))  # é˜²æ­¢æµ®ç‚¹è¯¯å·®
         
-        # Èç¹û¼Ğ½Ç´óÓÚãĞÖµ£¬µ±Ç°µãÊÇ¹Ø¼ü½Úµã
+        # å¦‚æœå¤¹è§’å¤§äºé˜ˆå€¼ï¼Œå½“å‰ç‚¹æ˜¯å…³é”®èŠ‚ç‚¹
         if theta > angle_threshold:
             key_nodes.append(full_path[i])
 
-    # Ìí¼ÓÔ²»·µÄÈë¿ÚºÍ³ö¿Úµã£¨Èç¹û²»ÔÚ¹Ø¼ü½ÚµãÖĞ£©
-    for point in entry_exit_points:
-        if not any(np.allclose(point, key_node) for key_node in key_nodes):
-            key_nodes.append(point)
+    # # æ·»åŠ åœ†ç¯çš„å…¥å£å’Œå‡ºå£ç‚¹ï¼ˆå¦‚æœä¸åœ¨å…³é”®èŠ‚ç‚¹ä¸­ï¼‰
+    # for point in entry_exit_points:
+    #     if not any(np.allclose(point, key_node) for key_node in key_nodes):
+    #         key_nodes.append(point)
 
-    # Ìí¼ÓÖÕµã
+    # æ·»åŠ ç»ˆç‚¹
     key_nodes.append(full_path[-1])
 
     return key_nodes
 
+def can_connect_directly(point1, point2, rings, safety_margin, steps=10):
+
+        for t in np.linspace(0, 1, steps):
+            intermediate_point = point1 + t * (np.array(point2) - np.array(point1))
+            if is_in_obstacle(intermediate_point, rings, safety_margin):
+                return False
+        return True
+
+def optimize_path(path, rings, safety_margin):
+
+    if len(path) <= 2:  # å¦‚æœè·¯å¾„åªæœ‰èµ·ç‚¹å’Œç»ˆç‚¹ï¼Œåˆ™æ— éœ€ä¼˜åŒ–
+        return path
+
+    optimized_path = [path[0]]  # ä¼˜åŒ–è·¯å¾„çš„èµ·ç‚¹
+    current_point = path[0]
+
+    for i in range(1, len(path)):
+        # æ£€æŸ¥å½“å‰ç‚¹å’Œè·¯å¾„ä¸­çš„ç‚¹ä¹‹é—´æ˜¯å¦å¯ä»¥ç›´æ¥è¿çº¿
+        if not can_connect_directly(current_point, path[i], rings, safety_margin):
+            # å¦‚æœä¸èƒ½ç›´è¿ï¼Œåˆ™å°†å½“å‰ç‚¹åŠ å…¥ä¼˜åŒ–è·¯å¾„
+            optimized_path.append(path[i - 1])
+            current_point = path[i - 1]
+
+    # æ·»åŠ è·¯å¾„çš„ç»ˆç‚¹
+    optimized_path.append(path[-1])
+    return optimized_path
+
 def set_axes_equal_and_uniform(ax, tick_interval):
 
-    # »ñÈ¡¸÷¸öÖáµÄ·¶Î§
+    # è·å–å„ä¸ªè½´çš„èŒƒå›´
     x_limits = ax.get_xlim3d()
     y_limits = ax.get_ylim3d()
     z_limits = ax.get_zlim3d()
 
-    # ÕÒµ½ËùÓĞÖáµÄ×îĞ¡ÖµºÍ×î´óÖµ
+    # æ‰¾åˆ°æ‰€æœ‰è½´çš„æœ€å°å€¼å’Œæœ€å¤§å€¼
     min_limit = min(x_limits[0], y_limits[0], z_limits[0])
     max_limit = max(x_limits[1], y_limits[1], z_limits[1])
 
-    # ÉèÖÃÏàÍ¬µÄ·¶Î§
+    # è®¾ç½®ç›¸åŒçš„èŒƒå›´
     ax.set_xlim3d([min_limit, max_limit])
     ax.set_ylim3d([min_limit, max_limit])
     ax.set_zlim3d([min_limit, max_limit])
 
-    # ÉèÖÃ¿Ì¶È¼ä¸ôÒ»ÖÂ
+    # è®¾ç½®åˆ»åº¦é—´éš”ä¸€è‡´
     ticks = np.arange(min_limit, max_limit + tick_interval, tick_interval)
     ax.set_xticks(ticks)
     ax.set_yticks(ticks)
     ax.set_zticks(ticks)
 
-    # ÉèÖÃÎªµÈ±ÈÀıÏÔÊ¾
-    ax.set_box_aspect([1, 1, 1])  # µÈ±ÈÀıÏÔÊ¾
+    # è®¾ç½®ä¸ºç­‰æ¯”ä¾‹æ˜¾ç¤º
+    ax.set_box_aspect([1, 1, 1])  # ç­‰æ¯”ä¾‹æ˜¾ç¤º
 
 def main():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    # »æÖÆÔ²ÅÌ
+    # ç»˜åˆ¶åœ†ç›˜
     plot_rings(ax, rings)
 
-    # ÉèÖÃ×ø±êÖá·¶Î§
+    # è®¾ç½®åæ ‡è½´èŒƒå›´
     ax.set_xlim(-1, 4)
     ax.set_ylim(-1, 4)
     ax.set_zlim(0, 2)
 
-    # »æÖÆÂ·¾¶
+    # ç»˜åˆ¶è·¯å¾„
     current_point = start_point
     full_path = []
-    all_node_positions = []  # ÓÃÓÚ±£´æËùÓĞÂ·¾¶¶ÎµÄ½Úµã×ø±ê
-    entry_exit_points = []  # ÓÃÓÚ±£´æÔ²»·µÄÈë¿ÚºÍ³ö¿Úµã
+    all_node_positions = []  # ç”¨äºä¿å­˜æ‰€æœ‰è·¯å¾„æ®µçš„èŠ‚ç‚¹åæ ‡
+    entry_exit_points = []  # ç”¨äºä¿å­˜åœ†ç¯çš„å…¥å£å’Œå‡ºå£ç‚¹
 
-    # ¶ÔÃ¿¸öÔ²ÅÌ½øĞĞ·Ö¶ÎÂ·¾¶¹æ»®
+    # å¯¹æ¯ä¸ªåœ†ç›˜è¿›è¡Œåˆ†æ®µè·¯å¾„è§„åˆ’
     for i, ring_name in enumerate(rings):
         ring = rings[ring_name]
 
-        # Éú³ÉÈë¿ÚµãºÍ³ö¿Úµã
+        # ç”Ÿæˆå…¥å£ç‚¹å’Œå‡ºå£ç‚¹
         entry_point, exit_point = generate_ring_entry_exit(ring, safety_margin)
 
-        # ¼ì²éÈë¿ÚµãºÍ³ö¿ÚµãÊÇ·ñ±»ÕÏ°­Îï¸²¸Ç
+        # æ£€æŸ¥å…¥å£ç‚¹å’Œå‡ºå£ç‚¹æ˜¯å¦è¢«éšœç¢ç‰©è¦†ç›–
         if is_in_obstacle(entry_point, rings, safety_margin):
             print(f"Entry point {entry_point} is in obstacle!")
         if is_in_obstacle(exit_point, rings, safety_margin):
             print(f"Exit point {exit_point} is in obstacle!")
 
-        # ±£´æÈë¿ÚºÍ³ö¿Úµã
+        # ä¿å­˜å…¥å£å’Œå‡ºå£ç‚¹
         entry_exit_points.append(entry_point)
         entry_exit_points.append(exit_point)
 
-        # ´Óµ±Ç°µãµ½Èë¿ÚµãµÄÂ·¾¶£¨A* ËÑË÷£©
+        # ä»å½“å‰ç‚¹åˆ°å…¥å£ç‚¹çš„è·¯å¾„ï¼ˆA* æœç´¢ï¼‰
         path_to_entry, node_positions_entry = a_star(current_point, entry_point, rings, safety_margin, step_size)
 
-        # ±£´æÂ·¾¶¶ÎµÄ½Úµã×ø±ê
+        # ä¿å­˜è·¯å¾„æ®µçš„èŠ‚ç‚¹åæ ‡
         all_node_positions.extend(node_positions_entry)
 
         if len(path_to_entry) > 1:
             full_path.extend(path_to_entry)
             ax.plot(*np.array(path_to_entry).T, color='green', label=f'Path to {ring_name} entry')
 
-        # ´ÓÈë¿ÚµãÖ±½ÓÁ¬Ïßµ½³ö¿Úµã
+        # ä»å…¥å£ç‚¹ç›´æ¥è¿çº¿åˆ°å‡ºå£ç‚¹
         full_path.append(exit_point)
         ax.plot([entry_point[0], exit_point[0]], [entry_point[1], exit_point[1]], [entry_point[2], exit_point[2]], color='red', label=f'{ring_name} entry to exit')
 
-        # ¸üĞÂµ±Ç°µãÎª³ö¿Úµã
+        # æ›´æ–°å½“å‰ç‚¹ä¸ºå‡ºå£ç‚¹
         current_point = exit_point
 
-    # ´Ó×îºóÒ»¸ö»·µÄ³ö¿Úµãµ½ÖÕµãµÄÂ·¾¶£¨A* ËÑË÷£©
+    # ä»æœ€åä¸€ä¸ªç¯çš„å‡ºå£ç‚¹åˆ°ç»ˆç‚¹çš„è·¯å¾„ï¼ˆA* æœç´¢ï¼‰
     path_to_goal, node_positions_goal = a_star(current_point, end_point, rings, safety_margin, step_size)
 
-    # ±£´æ×îÖÕÂ·¾¶¶ÎµÄ½Úµã×ø±ê
+    # ä¿å­˜æœ€ç»ˆè·¯å¾„æ®µçš„èŠ‚ç‚¹åæ ‡
     all_node_positions.extend(node_positions_goal)
 
     if len(path_to_goal) > 1:
         full_path.extend(path_to_goal)
         ax.plot(*np.array(path_to_goal).T, color='blue', label='Path to goal')
 
-    # ÌáÈ¡¹Ø¼ü½Úµã
+    # ä¼˜åŒ–è·¯å¾„ï¼Œå»æ‰é”¯é½¿
+    optimized_path = optimize_path(full_path, rings, safety_margin)
+
+    # æå–å…³é”®èŠ‚ç‚¹
     key_nodes = extract_key_nodes(full_path, entry_exit_points)
     print("Key nodes:", key_nodes)
 
-    # ±£´æ¹Ø¼ü½Úµãµ½ CSV
-    save_positions_to_csv(key_nodes, "key_nodes.csv")
+    # ä¿å­˜å…³é”®èŠ‚ç‚¹åˆ° CSV
+    offset_and_save_positions_to_csv(optimized_path, -start_point, "key_nodes.csv")
 
-    # ±£´æËùÓĞ½Úµã×ø±êµ½ CSV ÎÄ¼ş
-    save_positions_to_csv(all_node_positions, "all_a_star_nodes.csv")
+    # ä¿å­˜æ‰€æœ‰èŠ‚ç‚¹åæ ‡åˆ° CSV æ–‡ä»¶
+    save_positions_to_csv(full_path, "all_a_star_nodes.csv")
 
-    # ±ê¼ÇÆğµãºÍÖÕµã
-    ax.scatter(*start_point, color='blue', s=50, label='Start Point')  # Æğµã
+    ax.plot(*np.array(optimized_path).T, color='purple', label='Optimized Path')
+
+    # æ ‡è®°èµ·ç‚¹å’Œç»ˆç‚¹
+    ax.scatter(*start_point, color='blue', s=50, label='Start Point')  # èµ·ç‚¹
     ax.text(start_point[0], start_point[1], start_point[2], 'Start', color='blue')
 
-    ax.scatter(*end_point, color='red', s=50, label='End Point')  # ÖÕµã
+    ax.scatter(*end_point, color='red', s=50, label='End Point')  # ç»ˆç‚¹
     ax.text(end_point[0], end_point[1], end_point[2], 'End', color='red')
 
-    # ÉèÖÃ x, y, z ÖáµÈ³¤£¬ÇÒ¿Ì¶È¼ä¸ôÒ»ÖÂÎª 0.1
+    # è®¾ç½® x, y, z è½´ç­‰é•¿ï¼Œä¸”åˆ»åº¦é—´éš”ä¸€è‡´ä¸º 0.1
     set_axes_equal_and_uniform(ax, tick_interval=0.5)
 
-    # ÏÔÊ¾»æÖÆµÄÍ¼ĞÎ
+    # æ˜¾ç¤ºç»˜åˆ¶çš„å›¾å½¢
     plt.legend()
     plt.show()
 
-# ±£´æ½Úµã×ø±êµ½ CSV ÎÄ¼ş
+# ä¿å­˜èŠ‚ç‚¹åæ ‡åˆ° CSV æ–‡ä»¶
 def save_positions_to_csv(node_positions, csv_filename):
     with open(csv_filename, mode='w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        # Ğ´Èë±íÍ·
+        # å†™å…¥è¡¨å¤´
         writer.writerow(["X", "Y", "Z"])
-        # Ğ´Èë½Úµã×ø±ê
+        # å†™å…¥èŠ‚ç‚¹åæ ‡
         for position in node_positions:
             writer.writerow(position)
     print(f"Saved node positions to {csv_filename}")
+
+def offset_and_save_positions_to_csv(node_positions, offset, csv_filename):
+
+    # åç§»åçš„åæ ‡
+    offset_positions = [np.array(position) + np.array(offset) for position in node_positions]
+    
+    # ä¿å­˜åˆ° CSV æ–‡ä»¶
+    with open(csv_filename, mode='w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        # å†™å…¥è¡¨å¤´
+        writer.writerow(["X", "Y", "Z"])
+        # å†™å…¥åç§»åçš„èŠ‚ç‚¹åæ ‡
+        for position in offset_positions:
+            writer.writerow(position)
+    
+    print(f"Saved offset node positions to {csv_filename}")
 
 main()
 
