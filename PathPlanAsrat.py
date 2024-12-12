@@ -10,18 +10,18 @@ rings = {
     'ring2': {'center': np.array([1.3, -0.5, 1.55]), 'radius': 0.4, 'normal': np.array([-1, 0, 0])},
 }
 
-rings = {
-    'ring1': {'center': np.array([2.5, 1.4, 1.15]), 'radius': 0.4, 'normal': np.array([0, -1, 0])},
-    'ring2': {'center': np.array([0.5, -2.0, 1.55]), 'radius': 0.4, 'normal': np.array([-1, 0, 0])},
-    'ring3': {'center': np.array([1.0, 3.0, 0.8]), 'radius': 0.5, 'normal': np.array([1, 0, 1])},
-    'ring4': {'center': np.array([4.0, 1.5, 1.2]), 'radius': 0.35, 'normal': np.array([1, 1, 0])},
-    'ring5': {'center': np.array([3.0, -1.5, 0.5]), 'radius': 0.45, 'normal': np.array([0, 1, 1])},
-    'ring6': {'center': np.array([1.5, 0.5, 2.0]), 'radius': 0.5, 'normal': np.array([0, 1, 1])},
-    'ring7': {'center': np.array([4.5, -1.5, 1.0]), 'radius': 0.4, 'normal': np.array([1, -1, 1])},
-    'ring8': {'center': np.array([0.5, 4.0, 1.4]), 'radius': 0.3, 'normal': np.array([-1, 1, -0.5])},
-    'ring9': {'center': np.array([3.5, 2.0, 0.6]), 'radius': 0.4, 'normal': np.array([0.3, 1, 0.8])},
-    'ring10': {'center': np.array([2.0, -3.0, 1.8]), 'radius': 0.5, 'normal': np.array([1, -0.2, -0.3])}
-}
+# rings = {
+#     'ring1': {'center': np.array([2.5, 1.4, 1.15]), 'radius': 0.4, 'normal': np.array([0, -1, 0])},
+#     'ring2': {'center': np.array([0.5, -2.0, 1.55]), 'radius': 0.4, 'normal': np.array([-1, 0, 0])},
+#     'ring3': {'center': np.array([1.0, 3.0, 0.8]), 'radius': 0.5, 'normal': np.array([1, 0, 1])},
+#     'ring4': {'center': np.array([4.0, 1.5, 1.2]), 'radius': 0.35, 'normal': np.array([1, 1, 0])},
+#     'ring5': {'center': np.array([3.0, -1.5, 0.5]), 'radius': 0.45, 'normal': np.array([0, 1, 1])},
+#     'ring6': {'center': np.array([1.5, 0.5, 2.0]), 'radius': 0.5, 'normal': np.array([0, 1, 1])},
+#     'ring7': {'center': np.array([4.5, -1.5, 1.0]), 'radius': 0.4, 'normal': np.array([1, -1, 1])},
+#     'ring8': {'center': np.array([0.5, 4.0, 1.4]), 'radius': 0.3, 'normal': np.array([-1, 1, -0.5])},
+#     'ring9': {'center': np.array([3.5, 2.0, 0.6]), 'radius': 0.4, 'normal': np.array([0.3, 1, 0.8])},
+#     'ring10': {'center': np.array([2.0, -3.0, 1.8]), 'radius': 0.5, 'normal': np.array([1, -0.2, -0.3])}
+# }
 
 start_point = np.array([0.0, 0.0, 0.5])
 end_point = np.array([0.0, 0.0, 0.5])
@@ -31,7 +31,7 @@ step_size = 0.1
 
 def is_in_obstacle(point, rings, safety_margin):
 
-    point = np.array(point) 
+    point = np.array(point)  
 
     for ring_name, ring in rings.items():
         center = ring['center']  
