@@ -31,7 +31,7 @@ step_size = 0.1
 
 def is_in_obstacle(point, rings, safety_margin):
 
-    point = np.array(point)  # 转为 NumPy 数组以方便计算
+    point = np.array(point) 
 
     for ring_name, ring in rings.items():
         center = ring['center']  
