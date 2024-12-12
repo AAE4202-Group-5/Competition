@@ -68,41 +68,32 @@ def a_star(start, goal, rings, safety_margin, step_size):
 
 
     def heuristic(point, goal):
-
         return np.linalg.norm(np.array(point) - np.array(goal))
 
     def is_valid_point(point, rings, safety_margin):
-
         return not is_in_obstacle(point, rings, safety_margin)
 
     def can_connect_directly(point1, point2, rings, safety_margin, steps=10):
-
         for t in np.linspace(0, 1, steps):
             intermediate_point = point1 + t * (np.array(point2) - np.array(point1))
             if is_in_obstacle(intermediate_point, rings, safety_margin):
                 return False
         return True
 
-    # 初始化开放列表和关闭列表
     open_set = []
     closed_set = set()
-    came_from = {}  # 记录每个节点的父节点
+    came_from = {}  
 
-    # 节点代价：g(实际代价)和f(总代价)
-    g_score = {tuple(start): 0}  # 起点的实际代价为0
-    f_score = {tuple(start): heuristic(start, goal)}  # 起点的总代价为启发值
+    g_score = {tuple(start): 0}  
+    f_score = {tuple(start): heuristic(start, goal)}  
 
-    # 将起点加入开放列表
     heapq.heappush(open_set, (f_score[tuple(start)], tuple(start)))
 
-    # 保存节点坐标
     node_positions = [start]
 
     while open_set:
-        # 从开放列表中取出 f 值最低的节点
         _, current = heapq.heappop(open_set)
 
-        # 如果可以直接连线到目标点，结束搜索
         if can_connect_directly(current, goal, rings, safety_margin):
             path = []
             while current in came_from:
@@ -110,15 +101,13 @@ def a_star(start, goal, rings, safety_margin, step_size):
                 current = came_from[current]
             path.append(start)
             path.reverse()
-            path.append(goal)  # 直接连线到目标点
+            path.append(goal)  
             node_positions.append(goal)
             print(f"Found a path to the goal with direct connection: {goal}")
             return path, node_positions
 
-        # 将当前节点加入关闭列表
         closed_set.add(current)
 
-        # 扩展当前节点的邻居
         for dx in np.linspace(-step_size, step_size, 3):
             for dy in np.linspace(-step_size, step_size, 3):
                 for dz in np.linspace(-step_size, step_size, 3):
@@ -126,14 +115,11 @@ def a_star(start, goal, rings, safety_margin, step_size):
                         continue
                     neighbor = (current[0] + dx, current[1] + dy, current[2] + dz)
 
-                    # 跳过无效点（障碍物或已访问）
                     if not is_valid_point(neighbor, rings, safety_margin) or tuple(neighbor) in closed_set:
                         continue
 
-                    # 计算邻居的 g 值
                     tentative_g_score = g_score[current] + np.linalg.norm(np.array(neighbor) - np.array(current))
 
-                    # 如果发现更短路径，更新代价和路径
                     if tuple(neighbor) not in g_score or tentative_g_score < g_score[tuple(neighbor)]:
                         came_from[tuple(neighbor)] = current
                         g_score[tuple(neighbor)] = tentative_g_score
@@ -141,7 +127,6 @@ def a_star(start, goal, rings, safety_margin, step_size):
                         heapq.heappush(open_set, (f_score[tuple(neighbor)], tuple(neighbor)))
                         node_positions.append(list(neighbor))
 
-    # 如果未找到路径
     print(f"Failed to find a path to the goal: {goal}")
     return [], node_positions
 
@@ -215,35 +200,26 @@ def optimize_path(path, rings, safety_margin):
 
 def set_axes_equal_and_uniform(ax, tick_interval):
 
-    # 获取各个轴的范围
     x_limits = ax.get_xlim3d()
     y_limits = ax.get_ylim3d()
     z_limits = ax.get_zlim3d()
-
-    # 找到所有轴的最小值和最大值
     min_limit = min(x_limits[0], y_limits[0], z_limits[0])
     max_limit = max(x_limits[1], y_limits[1], z_limits[1])
-
-    # 设置相同的范围
     ax.set_xlim3d([min_limit, max_limit])
     ax.set_ylim3d([min_limit, max_limit])
     ax.set_zlim3d([min_limit, max_limit])
-
-    # 设置刻度间隔一致
     ticks = np.arange(min_limit, max_limit + tick_interval, tick_interval)
     ax.set_xticks(ticks)
     ax.set_yticks(ticks)
     ax.set_zticks(ticks)
 
-    # 设置为等比例显示
-    ax.set_box_aspect([1, 1, 1])  # 等比例显示
+    ax.set_box_aspect([1, 1, 1])  
 
 def main():
     start_time = time.time()
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    # 绘制圆盘
     plot_rings(ax, rings)
 
     # ax.set_xlim(-1, 4)
@@ -293,57 +269,44 @@ def main():
 
     end_time = time.time()
 
-    # 计算并打印耗时
     elapsed_time = end_time - start_time
     print(f"Total elapsed time: {elapsed_time:.2f} seconds")
 
     #----------------------------------------------------------
 
 
-    # 保存关键节点到 CSV
     offset_and_save_positions_to_csv(optimized_path, -start_point, "key_nodes.csv")
 
-    # 保存所有节点坐标到 CSV 文件
     save_positions_to_csv(full_path, "all_a_star_nodes.csv")
 
     ax.plot(*np.array(optimized_path).T, color='red', label='Optimized Path')
 
-    # 标记起点和终点
-    ax.scatter(*start_point, color='blue', s=50, label='Start Point')  # 起点
+    ax.scatter(*start_point, color='blue', s=50, label='Start Point') 
     ax.text(start_point[0], start_point[1], start_point[2], 'Start', color='blue')
 
-    ax.scatter(*end_point, color='red', s=50, label='End Point')  # 终点
+    ax.scatter(*end_point, color='red', s=50, label='End Point') 
     ax.text(end_point[0], end_point[1], end_point[2], 'End', color='red')
 
-    # 设置 x, y, z 轴等长，且刻度间隔一致为 0.1
     set_axes_equal_and_uniform(ax, tick_interval=0.5)
 
-    # 显示绘制的图形
     # plt.legend()
     plt.show()
 
-# 保存节点坐标到 CSV 文件
 def save_positions_to_csv(node_positions, csv_filename):
     with open(csv_filename, mode='w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        # 写入表头
         writer.writerow(["X", "Y", "Z"])
-        # 写入节点坐标
         for position in node_positions:
             writer.writerow(position)
     print(f"Saved node positions to {csv_filename}")
 
 def offset_and_save_positions_to_csv(node_positions, offset, csv_filename):
 
-    # 偏移后的坐标
     offset_positions = [np.array(position) + np.array(offset) for position in node_positions]
     
-    # 保存到 CSV 文件
     with open(csv_filename, mode='w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        # 写入表头
         writer.writerow(["X", "Y", "Z"])
-        # 写入偏移后的节点坐标
         for position in offset_positions:
             writer.writerow(position)
     
