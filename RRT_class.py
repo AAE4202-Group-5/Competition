@@ -62,7 +62,7 @@ def rrt(start, goal, rings, safety_margin, step_size, max_iter=1000):
     class Node:
         def __init__(self, position):
             self.position = position
-            self.parent = None  # 父节点
+            self.parent = None  
 
     def sample_random_point():
         return np.random.uniform(min_rand_area, max_rand_area) 
@@ -207,7 +207,6 @@ def main():
     
     end_time = time.time()
 
-    # 计算耗时
     elapsed_time = end_time - start_time
     print(f"Total elapsed time: {elapsed_time:.2f} seconds")
 
