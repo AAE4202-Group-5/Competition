@@ -4,7 +4,6 @@ from mpl_toolkits.mplot3d import Axes3D
 import csv
 import time
 
-# Ô²ÅÌ²ÎÊý
 rings = {
     'ring1': {'center': np.array([2.5, 1.4, 1.15]), 'radius': 0.4, 'normal': np.array([0, -1, 0])},
     'ring2': {'center': np.array([1.3, -0.5, 1.55]), 'radius': 0.4, 'normal': np.array([-1, 0, 0])}
@@ -32,28 +31,20 @@ step_size = 0.5
 max_iter = 1000 
 
 def is_in_obstacle(point, rings, safety_margin):
-
     point = np.array(point)  
-
     for ring_name, ring in rings.items():
         center = ring['center']  
         radius = ring['radius']  
         normal = ring['normal']  
-
         normal = normal / np.linalg.norm(normal)  
         vector_to_point = point - center
         distance_to_plane = np.dot(vector_to_point, normal)
-
         if abs(distance_to_plane) > safety_margin:
             continue
-
         projected_point = point - distance_to_plane * normal
-
         distance_to_center = np.linalg.norm(projected_point - center)
-
         if distance_to_center <= radius + safety_margin:
             return True
-
     return False
 
 def distance(p1, p2):
@@ -71,7 +62,7 @@ def rrt(start, goal, rings, safety_margin, step_size, max_iter=1000):
     class Node:
         def __init__(self, position):
             self.position = position
-            self.parent = None  # ¸¸½Úµã
+            self.parent = None  # çˆ¶èŠ‚ç‚¹
 
     def sample_random_point():
         return np.random.uniform(min_rand_area, max_rand_area) 
@@ -216,7 +207,7 @@ def main():
     
     end_time = time.time()
 
-    # ¼ÆËãºÄÊ±
+    # è®¡ç®—è€—æ—¶
     elapsed_time = end_time - start_time
     print(f"Total elapsed time: {elapsed_time:.2f} seconds")
 
