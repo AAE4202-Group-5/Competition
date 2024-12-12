@@ -27,8 +27,6 @@ start_point = np.array([0.0, 0.0, 0.5])
 end_point = np.array([0.0, 0.0, 0.5])
 safety_margin = 0.2  
 
-
-max_iter = 3000  
 step_size = 0.1  
 
 def is_in_obstacle(point, rings, safety_margin):
@@ -36,34 +34,26 @@ def is_in_obstacle(point, rings, safety_margin):
     point = np.array(point)  # 转为 NumPy 数组以方便计算
 
     for ring_name, ring in rings.items():
-        # 获取圆环的参数
-        center = ring['center']  # 圆环中心
-        radius = ring['radius']  # 圆环半径
-        normal = ring['normal']  # 圆环法向量
+        center = ring['center']  
+        radius = ring['radius']  
+        normal = ring['normal']  
 
-        # 计算点到圆环平面的距离
-        normal = normal / np.linalg.norm(normal)  # 规范化法向量
+        normal = normal / np.linalg.norm(normal)  
         vector_to_point = point - center
         distance_to_plane = np.dot(vector_to_point, normal)
 
-        # 如果点到平面的距离超过扩展厚度，则不在障碍区域内
         if abs(distance_to_plane) > safety_margin:
             continue
 
-        # 将点投影到圆环平面
         projected_point = point - distance_to_plane * normal
 
-        # 计算投影点到圆心的距离
         distance_to_center = np.linalg.norm(projected_point - center)
 
-        # 如果投影点在圆环扩展半径范围内，则点在障碍区域
         if distance_to_center <= radius + safety_margin:
             return True
 
-    # 如果点不在任何障碍物内
     return False
 
-# 计算两点之间的欧几里得距离
 def distance(p1, p2):
     return np.linalg.norm(p1 - p2)
 
